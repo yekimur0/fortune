@@ -1,0 +1,364 @@
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+:root {
+	--black: #000;
+	--yellow: #ffd130;
+	--white: #fff;
+	--gray: #767676;
+	--red: #ff122e;
+	--background-gray: #f5f5f5;
+	--seryy: #767676;
+
+  --font-family: "Gilroy", sans-serif;
+  --second-family: "Inter", sans-serif;
+  --third-family: "Gotham Pro", sans-serif;
+  --font3: "Stolzl", sans-serif;
+  --font4: "Formular", sans-serif;
+}
+
+body {
+  font-size: 14px;
+  font-family: 'Gliroy', sans-serif;
+  font-weight: 400;
+  color: #000;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+/* общий блок для всех элементов */
+.deal-wheel {
+  /* задаём переменные блока */
+  /* размеры колеса */
+  --size: clamp(250px, 45vw, 680px);
+ 
+  
+  /* добавляем позиционирование относительно других элементов */
+  position: relative;
+  /* подключаем сетку */
+  display: grid;
+  grid-gap: calc(var(--size) / 20);
+  /* выравниваем содержимое блока по центру */
+  align-items: center;
+  /* задаём имена областей внутри сетки */
+  grid-template-areas:
+    "spinner"
+    "trigger";
+  /* устанавливаем размер шрифта */
+  font-size: calc(var(--size) / 21);
+  
+}
+
+/* всё, что относится ко внутренним элементам главного блока, будет находиться в области сетки с названием spinner */
+.deal-wheel > * {
+  grid-area: spinner;
+}
+
+/* сам блок и кнопка будут находиться в области сетки с названием trigger и будут выровнены по центру */
+.deal-wheel .btn-spin {
+  grid-area: trigger;
+  justify-self: center;
+}
+
+/* сектор колеса */
+.spinner {
+  /* добавляем относительное позиционирование */
+  position: relative;
+  /* подключаем сетку */
+  display: grid;
+  /* выравниваем всё по центру */
+  align-items: center;
+  /* добавляем элемент в сетку */
+  grid-template-areas: "spinner";
+  /* устанавливаем размеры */
+  width: var(--size);
+  height: var(--size);
+  /* поворачиваем элемент  */
+  transform: rotate(calc(var(--rotate, 25) * 1deg));
+  /* рисуем круглую обводку, а всё, что не поместится, — будет скрыто за кругом */
+  border-radius: 50%;
+}
+
+/* всё, что внутри этого блока, будет находиться в области сетки с названием spinner */
+.spinner * {
+  grid-area: spinner;
+}
+
+/* текст на секторах */
+.prize {
+  /* включаем «гибкую» вёрстку */
+  display: flex;
+  align-items: center;
+  /* задаём отступы от краёв блока */
+  padding: 0 calc(var(--size) / 6) 0 calc(var(--size) / 20);
+  /* устанавливаем размеры */
+  width: 50%;
+  height: 50%;
+  /* устанавливаем координаты, относительно которых будем вращать текст */
+  transform-origin: center right;
+  /* поворачиваем текст */
+  transform: rotate(var(--rotate));
+  /* запрещаем пользователю выделять мышкой текст на секторах */
+  user-select: none;
+
+  & .text {
+    font-family: 'Gliroy', sans-serif;
+    font-weight: bold;
+    font-size: clamp(16px, 1.5vw, 24px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  & .text-more {
+    font-size: 14px;
+    color: #726D5C;
+  }
+}
+
+/* язычок */
+.ticker {
+  /* добавляем относительное позиционирование */
+  position: relative;
+  /* устанавливаем размеры */
+  left: calc(var(--size) / -15);
+  width: 90px;
+  height: 60px;
+  /* фон язычка */
+  /* background: var(--lg); */
+  /* делаем так, чтобы язычок был выше колеса */
+  z-index: 1;
+  /* форма язычка */
+  /* clip-path: polygon(20% 0, 100% 50%, 20% 100%, 0% 50%); */
+  /* устанавливаем точку, относительно которой будет вращаться язычок при движении колеса */
+  /* transform-origin: center left; */
+  background: url('/ticker.svg') no-repeat;
+  background-size: contain;
+
+  @media(max-width: 1280px) {
+    width: 60px;
+    height: 30px;
+    left: 0;
+  }
+}
+
+/* кнопка запуска колеса */
+.btn-spin {
+  color: white;
+  background: black;
+  border: none;
+  /* берём размер шрифта такой же, как в колесе */
+  font-size: inherit;
+  /* добавляем отступы от текста внутри кнопки */
+  padding: 0.9rem 2rem 1rem;
+  /* скругляем углы */
+  border-radius: 0.5rem;
+  /* меняем внешний вид курсора над кнопкой на руку*/
+  cursor: pointer;
+}
+
+/* если кнопка нажата и неактивна */
+.btn-spin:disabled {
+  /* меняем внешний вид курсора */
+  cursor: progress;
+  /* делаем кнопку полупрозрачной */
+  opacity: 0.25;
+}
+
+/* анимация вращения */
+.is-spinning .spinner {
+  transition: transform 8s cubic-bezier(0.1, -0.01, 0, 1);
+}
+
+/* анимация движения язычка */
+.is-spinning .ticker {
+          animation: tick 700ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+
+/* эффект, когда колесо задевает язычок при вращении */
+@keyframes tick {
+  40% {
+    /* чуть поворачиваем язычок наверх в середине анимации */
+    transform: rotate(-12deg);
+  }
+}
+
+/* анимируем выпавший сектор */
+.prize.selected .text {
+  /* делаем текст белым */
+  color: rgb(0, 0, 0);
+  /* настраиваем длительность анимации */
+  animation: selected 800ms ease;
+}
+
+.deal-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border-radius: 50%;
+  @media(max-width: 1300px) {
+    transform: translate(-80%, -50%);
+  }
+
+}
+
+/* настраиваем анимацию текста на выпавшем секторе по кадрам */
+@keyframes selected {
+  /* что происходит на 25% от начала анимации */
+  25% {
+    /* увеличиваем текст в 1,25 раза */
+    transform: scale(1.25);
+    /* добавляем тексту тень */
+    text-shadow: 1vmin 1vmin 0 hsla(0 0% 0% / 0.1);
+  }
+  40% {
+    transform: scale(0.92);
+    text-shadow: 0 0 0 hsla(0 0% 0% / 0.2);
+  }
+  60% {
+    transform: scale(1.02);
+    text-shadow: 0.5vmin 0.5vmin 0 hsla(0 0% 0% / 0.1);
+  }
+  75% {
+    transform: scale(0.98);
+  }
+  85% {
+    transform: scale(1);
+  }
+}
+
+.wrapper-fortune {
+  max-width: 1240px;
+  width: 100%;
+  position: relative;
+  background: #FFD130;
+  min-height: 600px;
+  border-radius: 100px 0 0 100px;
+  @media(max-width: 1600px) {
+    border-radius: 0;
+  }
+  & .wrapper-fortune__inner {
+    display: grid;
+    grid-template-columns: 520px 1fr;
+    align-items: center;
+    @media(max-width: 1600px) {
+      grid-template-columns: 1fr 1fr;
+    }
+   
+  }
+
+  .deal-wheel {
+    position: absolute;
+    top: 51%;
+    left: -140px;
+    transform: translateY(-50%);
+    @media(max-width: 1600px) {
+      left: -100px;
+      position: static;
+      transform: translate(0);
+      padding-top: 30px;
+    }
+    .spinner {
+      border: 10px solid #fff;
+      box-shadow: 2px 4px 30px 0 rgba(0, 0, 0, 0.2);
+    }
+
+   
+  }
+
+  & .wrapper-fortune__cb {
+    grid-column-start: 2;
+    padding: 42px 60px 42px 42px;
+
+    & .title {
+      font-family: var(--font-family);
+      font-weight: 700;
+      font-size: 32px;
+      line-height: 131%;
+      text-transform: uppercase;
+      color: var(--black);
+      margin-bottom: 30px;
+    }
+  }
+
+  .fortune-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    & .fortune-form__row {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+
+      label {
+        font-family: var(--font-family);
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 157%;
+      }
+
+      input {
+        font-family: var(--font-family);
+        font-weight: 600;
+        font-size: 20px;
+        line-height: 160%;
+        color: var(--black);
+        border: 1px solid #d9d9d9;
+        border-radius: 4px;
+        background-color: var(--white);
+        padding: 9px 24px;
+      }
+    }
+  }
+
+  & .fortune-form__bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  & .fortune-form__btn {
+    max-width: 275px;
+    font-family: var(--font-family);
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 160%;
+    color: var(--white);
+    padding: 20px 49px;
+    background-color: var(--black);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: .3s ease;
+    @media(any-hover: hover) {
+      &:hover{
+        background-color: transparent;
+        color: var(--black);
+        border-color: var(--black);
+      }
+    }
+  }
+
+  & .fortune-form__policy {
+    font-family: var(--font-family);
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 143%;
+    color: var(--black);
+
+    a {
+      color: #333;
+    }
+  }
+}
